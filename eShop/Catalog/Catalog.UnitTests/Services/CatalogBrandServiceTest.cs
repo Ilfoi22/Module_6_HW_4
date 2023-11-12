@@ -1,4 +1,5 @@
 ﻿using Catalog.Host.Data.Entities;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +46,7 @@ namespace Catalog.UnitTests.Services
                 It.IsAny<string>())).ReturnsAsync(testResult);
 
             // act
-            var result = await _catalogBrandService.AddAsync(_testItem.Id, _testItem.Brand);
+            var result = await _catalogBrandService.Add(_testItem.Id, _testItem.Brand);
 
             // assert
             result.Should().Be(testResult);
@@ -62,10 +63,77 @@ namespace Catalog.UnitTests.Services
                 It.IsAny<string>())).ReturnsAsync(testResult);
 
             // act
-            var result = await _catalogBrandService.AddAsync(_testItem.Id, _testItem.Brand);
+            var result = await _catalogBrandService.Add(_testItem.Id, _testItem.Brand);
 
             // assert
             result.Should().Be(testResult);
+        }
+
+        [Fact]
+        public async Task DeleteAsync_Success()
+        {
+            // arrange 
+            var brandToDelete = 1;
+
+            _catalogBrandRepository.Setup(s => s.DeleteAsync(
+                It.IsAny<int>())).ReturnsAsync((CatalogBrand?)null);
+
+            // act
+            var result = await _catalogBrandService.DeleteAsync(brandToDelete);
+
+            // assert
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task DeleteAsync_Failed()
+        {
+            // arrange
+            var brandToDelete = 999;
+
+            _catalogBrandRepository.Setup(s => s.DeleteAsync(
+                It.IsAny<int>())).ReturnsAsync(new CatalogBrand { Id = brandToDelete });
+
+            // act
+            var result = await _catalogBrandService.DeleteAsync(brandToDelete);
+
+            // assert
+            result.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task UpdateAsync_Success()
+        {
+            // arrange
+            var brandIdToUpdate = 1;
+            var updatedBrand = new CatalogBrand { Id = brandIdToUpdate, Brand = "UpdatedBrand" };
+
+            _catalogBrandRepository.Setup(s => s.UpdateAsync(
+                It.IsAny<int>(),
+                It.IsAny<string>())).ReturnsAsync(updatedBrand);
+
+            // act
+            var result = await _catalogBrandService.UpdateAsync(_testItem.Id, _testItem.Brand);
+
+            // assert
+            result.Should().Be(result);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_Failed()
+        {
+            // arrange
+            var updatedBrand = new CatalogBrand { };
+
+            _catalogBrandRepository.Setup(s => s.UpdateAsync(
+                It.IsAny<int>(),
+                It.IsAny<string>())).ReturnsAsync(updatedBrand);
+
+            // act
+            var result = await _catalogBrandService.UpdateAsync(_testItem.Id, _testItem.Brand);
+
+            // assert
+            result.Should().Be(updatedBrand);
         }
     }
 }

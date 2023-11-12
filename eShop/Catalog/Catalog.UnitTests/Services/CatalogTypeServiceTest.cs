@@ -1,4 +1,5 @@
 ﻿using Catalog.Host.Data.Entities;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +47,7 @@ namespace Catalog.UnitTests.Services
                 It.IsAny<string>())).ReturnsAsync(testResult);
 
             // act
-            var result = await _catalogTypeService.AddAsync(_testItem.Id, _testItem.Type);
+            var result = await _catalogTypeService.Add(_testItem.Id, _testItem.Type);
 
             // assert
             result.Should().Be(testResult);
@@ -63,10 +64,77 @@ namespace Catalog.UnitTests.Services
                 It.IsAny<string>())).ReturnsAsync(testResult);
 
             // act
-            var result = await _catalogTypeService.AddAsync(_testItem.Id, _testItem.Type);
+            var result = await _catalogTypeService.Add(_testItem.Id, _testItem.Type);
 
             // assert
             result.Should().Be(testResult);
+        }
+
+        [Fact]
+        public async Task DeleteAsync_Success()
+        {
+            // arrange 
+            var typeToDelete = 1;
+
+            _catalogTypeRepository.Setup(s => s.DeleteAsync(
+                It.IsAny<int>())).ReturnsAsync((CatalogType?)null);
+
+            // act
+            var result = await _catalogTypeService.DeleteAsync(typeToDelete);
+
+            // assert
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task DeleteAsync_Failed()
+        {
+            // arrange
+            var typeToDelete = 999;
+
+            _catalogTypeRepository.Setup(s => s.DeleteAsync(
+                It.IsAny<int>())).ReturnsAsync(new CatalogType { Id = typeToDelete });
+
+            // act
+            var result = await _catalogTypeService.DeleteAsync(typeToDelete);
+
+            // assert
+            result.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task UpdateAsync_Success()
+        {
+            // arrange
+            var typeToUpdate = 1;
+            var updatedType = new CatalogType { Id = typeToUpdate, Type = "UpdatedType" };
+
+            _catalogTypeRepository.Setup(s => s.UpdateAsync(
+                It.IsAny<int>(),
+                It.IsAny<string>())).ReturnsAsync(updatedType);
+
+            // act
+            var result = await _catalogTypeService.UpdateAsync(_testItem.Id, _testItem.Type);
+
+            // assert
+            result.Should().Be(result);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_Failed()
+        {
+            // arrange
+            var updatedType = new CatalogType { };
+
+            _catalogTypeRepository.Setup(s => s.UpdateAsync(
+                It.IsAny<int>(),
+                It.IsAny<string>())).ReturnsAsync(updatedType);
+
+            // act
+            var result = await _catalogTypeService.UpdateAsync(_testItem.Id, _testItem.Type);
+
+            // assert
+            result.Should().Be(updatedType);
         }
     }
 }

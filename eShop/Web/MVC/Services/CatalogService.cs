@@ -18,7 +18,7 @@ public class CatalogService : ICatalogService
         _logger = logger;
     }
 
-    public async Task<CatalogInfo> GetCatalogItems(int page, int take, int? brand, int? type)
+    public async Task<Catalog> GetCatalogItems(int page, int take, int? brand, int? type)
     {
         var filters = new Dictionary<CatalogTypeFilter, int>();
 
@@ -32,7 +32,7 @@ public class CatalogService : ICatalogService
             filters.Add(CatalogTypeFilter.Type, type.Value);
         }
         
-        var result = await _httpClient.SendAsync<CatalogInfo, PaginatedItemsRequest<CatalogTypeFilter>>($"{_settings.Value.CatalogUrl}/items",
+        var result = await _httpClient.SendAsync<Catalog, PaginatedItemsRequest<CatalogTypeFilter>>($"{_settings.Value.CatalogUrl}/items",
            HttpMethod.Post, 
            new PaginatedItemsRequest<CatalogTypeFilter>()
             {
@@ -46,21 +46,42 @@ public class CatalogService : ICatalogService
 
     public async Task<IEnumerable<SelectListItem>> GetBrands()
     {
-        var result = await _httpClient.SendAsync<IEnumerable<SelectListItem>, object>(
-            $"{_settings.Value.CatalogUrl}/getbrands",
-            HttpMethod.Post,
-            new { });
+        await Task.Delay(300);
+        var list = new List<SelectListItem>
+        {
+            new SelectListItem()
+            {
+                Value = "0",
+                Text = "brand 1"
+            },
+            new SelectListItem()
+            {
+                Value = "1",
+                Text = "brand 2"
+            }
+        };
 
-        return result;
+        return list;
     }
 
     public async Task<IEnumerable<SelectListItem>> GetTypes()
     {
-        var response = await _httpClient.SendAsync<IEnumerable<SelectListItem>, object>(
-            $"{_settings.Value.CatalogUrl}/types",
-            HttpMethod.Get,
-            null);
+        await Task.Delay(300);
+        var list = new List<SelectListItem>
+        {
+            new SelectListItem()
+            {
+                Value = "0",
+                Text = "type 1"
+            },
+            
+            new SelectListItem()
+            {
+                Value = "1",
+                Text = "type 2"
+            }
+        };
 
-        return response;
+        return list;
     }
 }

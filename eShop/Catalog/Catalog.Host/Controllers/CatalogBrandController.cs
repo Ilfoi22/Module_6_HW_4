@@ -1,6 +1,10 @@
-using Catalog.Host.Models.Dtos;
+using System.Net;
+using Catalog.Host.Models.Requests;
 using Catalog.Host.Models.Response;
+using Catalog.Host.Services;
 using Catalog.Host.Services.Interfaces;
+using Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.Host.Controllers;
 
@@ -20,10 +24,36 @@ public class CatalogBrandController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> Add(CatalogBrandDto request)
+    [ProducesResponseType(typeof(AddItemResponse<int?>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Add(int id, string brand)
     {
-        var result = await _catalogBrandService.AddAsync(request.Id, request.Brand);
+        var result = await _catalogBrandService.Add(id, brand);
+        return Ok(new AddItemResponse<int?>() { Id = result });
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var result = await _catalogBrandService.DeleteAsync(id);
+
+        if (result is null)
+        {
+            return NoContent();
+        }
+
+        return Ok(result);
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> Update(int id, string brand)
+    {
+        var result = await _catalogBrandService.UpdateAsync(id, brand);
+
+        if (result is null)
+        {
+            return NoContent();
+        }
+
         return Ok(result);
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace MVC.ViewModels;
 
-public record CatalogInfo
+public record Catalog
 {
     public int PageIndex { get; init; }
     public int PageSize { get; init; }
