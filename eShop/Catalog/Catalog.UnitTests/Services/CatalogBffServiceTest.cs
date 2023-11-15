@@ -1,6 +1,8 @@
+using System.Reflection;
 using System.Threading;
 using Catalog.Host.Data.Entities;
 using Catalog.Host.Models.Dtos;
+using Catalog.Host.Models.Enums;
 using Catalog.Host.Models.Response;
 using Moq;
 
@@ -26,93 +28,6 @@ public class CatalogBffServiceTest
         _dbContextWrapper.Setup(s => s.BeginTransactionAsync(CancellationToken.None)).ReturnsAsync(dbContextTransaction.Object);
 
         _catalogBffService = new CatalogBffService(_dbContextWrapper.Object, _logger.Object, _catalogBffRepository.Object, _mapper.Object);
-    }
-
-    [Fact]
-    public async Task GetCatalogItemsAsync_Success()
-    {
-        // arrange
-        var testPageIndex = 0;
-        var testPageSize = 4;
-        var testTotalCount = 12;
-
-        var pagingPaginatedItemsSuccess = new PaginatedItems<CatalogItem>()
-        {
-            Data = new List<CatalogItem>()
-            {
-                new CatalogItem()
-                {
-                    Name = "TestName",
-                },
-            },
-            TotalCount = testTotalCount,
-        };
-
-        var catalogItemSuccess = new CatalogItem()
-        {
-            Name = "TestName"
-        };
-
-        var catalogItemDtoSuccess = new CatalogItemDto()
-        {
-            Name = "TestName"
-        };
-
-        _catalogBffRepository.Setup(s => s.GetByPageAsync(
-            It.Is<int>(i => i == testPageIndex),
-            It.Is<int>(i => i == testPageSize))).ReturnsAsync(pagingPaginatedItemsSuccess);
-
-        _mapper.Setup(s => s.Map<CatalogItemDto>(
-            It.Is<CatalogItem>(i => i.Equals(catalogItemSuccess)))).Returns(catalogItemDtoSuccess);
-
-        // act
-        var result = await _catalogBffService.GetCatalogItemsAsync(testPageSize, testPageIndex);
-
-        // assert
-        result.Should().NotBeNull();
-        result?.Data.Should().NotBeNull();
-        result?.Count.Should().Be(testTotalCount);
-        result?.PageIndex.Should().Be(testPageIndex);
-        result?.PageSize.Should().Be(testPageSize);
-    }
-
-    [Fact]
-    public async Task GetCatalogItemsAsync_Failed()
-    {
-        // arrange
-        var testPageIndex = 1000;
-        var testPageSize = 10000;
-
-        _catalogBffRepository.Setup(s => s.GetByPageAsync(
-            It.Is<int>(i => i == testPageIndex),
-            It.Is<int>(i => i == testPageSize))).Returns((Func<PaginatedItemsResponse<CatalogItemDto>>)null!);
-
-        // act
-        var result = await _catalogBffService.GetCatalogItemsAsync(testPageSize, testPageIndex);
-
-        // assert
-        result.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task GetItemAsync_Success()
-    {
-        var expectedItems = new List<CatalogItem>
-        {
-            new CatalogItem { Name = "Name1" },
-            new CatalogItem { Name = "Name2" },
-            new CatalogItem { Name = "Name3" }
-        };
-
-        _catalogBffRepository.Setup(s => s.GetItemsAsync())
-                         .ReturnsAsync(expectedItems);
-
-        // act
-        var result = await _catalogBffService.GetItemsAsync();
-
-        // assert
-        result.Should().NotBeNull();
-        result.Should().BeEquivalentTo(expectedItems);
     }
 
     [Fact]

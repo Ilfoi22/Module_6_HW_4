@@ -6,7 +6,7 @@ namespace MVC.Controllers;
 
 public class CatalogController : Controller
 {
-    private  readonly ICatalogService _catalogService;
+    private readonly ICatalogService _catalogService;
 
     public CatalogController(ICatalogService catalogService)
     {

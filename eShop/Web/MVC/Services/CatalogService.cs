@@ -46,41 +46,24 @@ public class CatalogService : ICatalogService
 
     public async Task<IEnumerable<SelectListItem>> GetBrands()
     {
-        await Task.Delay(300);
-        var list = new List<SelectListItem>
-        {
-            new SelectListItem()
-            {
-                Value = "0",
-                Text = "brand 1"
-            },
-            new SelectListItem()
-            {
-                Value = "1",
-                Text = "brand 2"
-            }
-        };
+        var result = await _httpClient.SendAsync<IEnumerable<CatalogBrand>, object>($"{_settings.Value.CatalogUrl}/getbrands",
+            HttpMethod.Get, new { });
+
+        var list = new List<SelectListItem>();
+
+        list.AddRange(result.Select(x => new SelectListItem {  Text = x.Brand, Value = x.Id.ToString() }));
 
         return list;
     }
 
     public async Task<IEnumerable<SelectListItem>> GetTypes()
     {
-        await Task.Delay(300);
-        var list = new List<SelectListItem>
-        {
-            new SelectListItem()
-            {
-                Value = "0",
-                Text = "type 1"
-            },
-            
-            new SelectListItem()
-            {
-                Value = "1",
-                Text = "type 2"
-            }
-        };
+        var result = await _httpClient.SendAsync<IEnumerable<CatalogType>, object>($"{_settings.Value.CatalogUrl}/gettypes",
+            HttpMethod.Get, new { });
+
+        var list = new List<SelectListItem>();
+
+        list.AddRange(result.Select(x => new SelectListItem { Text = x.Type, Value = x.Id.ToString() }));
 
         return list;
     }
